@@ -165,8 +165,9 @@
 <div id="chest-view"></div>
 
 <div id="history-view">
-  <div style="padding:24px 18px 8px">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px">HISTORIQUE <span style="color:var(--red)">SÉANCES</span></div>
+  <div style="padding:16px 18px 8px;display:flex;align-items:center;gap:14px">
+    <button onclick="showView(lastView)" style="background:var(--gray2);border:1px solid var(--mid);border-radius:8px;color:var(--white);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;padding:8px 14px;cursor:pointer;flex-shrink:0">← RETOUR</button>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px">HISTORIQUE <span style="color:var(--red)">SÉANCES</span></div>
   </div>
   <div class="history-filter">
     <div class="filter-btn active" id="f-all"   onclick="setFilter('all')">TOUT</div>
@@ -205,6 +206,7 @@ var CHEST_BLOCKS = [
 ];
 
 var currentView = 'legs';
+var lastView = 'legs';
 var historyFilter = 'all';
 var DATA = {};
 var HISTORY = [];
@@ -433,6 +435,7 @@ function toggleBlock(key) {
 
 // ── VIEWS ──────────────────────────────────────────────────────────────────
 function showView(v) {
+  if(v!=='history') lastView=v;
   currentView=v;
   ['legs','arms','chest','history'].forEach(function(x){document.getElementById(x+'-view').style.display=v===x?'block':'none';});
   document.getElementById('session-tabs').style.display=v==='history'?'none':'flex';
@@ -442,6 +445,7 @@ function showView(v) {
   document.getElementById('btn-history').classList.toggle('active',v==='history');
   updateProgress();
   if(v==='history') renderHistory();
+  window.scrollTo(0,0);
 }
 
 function restoreNotesFields() {
