@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tracker">
+<meta name="theme-color" content="#0a0a0a">
+<title>Tracker Séances</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black:#0a0a0a; --red:#e8001d; --red-dim:#6b0010; --red-bg:rgba(232,0,29,0.08);
+    --white:#f5f0e8; --gray:#1a1a1a; --gray2:#222; --mid:#2e2e2e; --muted:#555;
+    --accent:#ff4d00; --green:#00c851; --green-bg:rgba(0,200,81,0.1);
+    --blue:#4d9fff; --blue-bg:rgba(77,159,255,0.08); --blue-dim:#1a4a80;
+    --purple:#a855f7; --purple-bg:rgba(168,85,247,0.08); --purple-dim:#4a1a80;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--black); color:var(--white); font-family:'DM Sans',sans-serif; min-height:100vh; padding-bottom:80px; }
+
+  .header { position:sticky; top:0; z-index:100; background:rgba(10,10,10,0.97); backdrop-filter:blur(12px); border-bottom:1px solid var(--mid); padding:14px 18px; display:flex; align-items:center; justify-content:space-between; }
+  .header-title { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:2px; line-height:1; }
+  .header-title span { color:var(--red); }
+  .header-date { font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
+  .header-actions { display:flex; gap:8px; }
+  .btn { border:none; border-radius:6px; font-family:'Bebas Neue',sans-serif; font-size:12px; letter-spacing:1px; padding:7px 10px; cursor:pointer; }
+  .btn-red { background:var(--red); color:var(--white); }
+  .btn-ghost { background:var(--gray2); color:#888; border:1px solid var(--mid); }
+  .btn-ghost.active { color:var(--white); border-color:#555; }
+
+  .session-tabs { display:flex; border-bottom:1px solid var(--mid); background:rgba(10,10,10,0.97); position:sticky; top:57px; z-index:99; }
+  .tab { flex:1; padding:11px 4px; text-align:center; font-family:'Bebas Neue',sans-serif; font-size:11px; letter-spacing:1px; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; }
+  .tab.active-legs { color:var(--red); border-bottom-color:var(--red); }
+  .tab.active-arms { color:var(--blue); border-bottom-color:var(--blue); }
+  .tab.active-chest { color:var(--purple); border-bottom-color:var(--purple); }
+
+  .progress-bar-wrap { padding:0 18px 14px; background:rgba(10,10,10,0.97); }
+  .progress-track { height:3px; background:var(--mid); border-radius:2px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:2px; transition:width .4s ease; width:0%; }
+  .progress-fill.legs { background:var(--red); }
+  .progress-fill.arms { background:var(--blue); }
+  .progress-fill.chest { background:var(--purple); }
+  .progress-label { font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-top:5px; display:flex; justify-content:space-between; }
+
+  #legs-view, #arms-view, #chest-view, #history-view { display:none; }
+
+  .exo-block { margin:16px 16px 0; border-radius:12px; overflow:hidden; border:1px solid var(--mid); background:var(--gray); }
+  .exo-header { padding:14px 16px; display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none; }
+  .exo-num { font-family:'Bebas Neue',sans-serif; font-size:28px; line-height:1; min-width:36px; opacity:.5; }
+  .exo-num.c-legs { color:var(--red-dim); } .exo-num.c-arms { color:var(--blue-dim); } .exo-num.c-chest { color:var(--purple-dim); }
+  .exo-info { flex:1; }
+  .exo-name { font-family:'Bebas Neue',sans-serif; font-size:18px; line-height:1.1; }
+  .exo-name-b { font-size:12px; color:#777; margin-top:2px; }
+  .exo-target { font-size:9px; letter-spacing:2px; text-transform:uppercase; margin-top:3px; }
+  .exo-target.c-legs { color:var(--accent); } .exo-target.c-arms { color:var(--blue); } .exo-target.c-chest { color:var(--purple); }
+  .ss-badge { display:inline-block; font-size:8px; letter-spacing:2px; font-weight:700; padding:2px 6px; border-radius:3px; text-transform:uppercase; margin-bottom:3px; }
+  .ss-badge.c-arms { background:var(--blue-bg); color:var(--blue); border:1px solid var(--blue-dim); }
+  .ss-badge.c-chest { background:var(--purple-bg); color:var(--purple); border:1px solid var(--purple-dim); }
+  .solo-badge { display:inline-block; font-size:8px; letter-spacing:2px; font-weight:700; padding:2px 6px; border-radius:3px; text-transform:uppercase; margin-bottom:3px; background:rgba(255,255,255,0.05); color:#666; border:1px solid var(--mid); }
+  .exo-status { font-size:18px; min-width:24px; text-align:center; }
+  .exo-chevron { color:var(--muted); font-size:11px; transition:transform .2s; }
+  .exo-block.open .exo-chevron { transform:rotate(180deg); }
+  .exo-body { display:none; padding:0 16px 16px; border-top:1px solid var(--mid); }
+  .exo-block.open .exo-body { display:block; }
+
+  .target-hint { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; padding:10px 12px; border-radius:8px; }
+  .target-hint.c-legs { background:rgba(255,77,0,.06); border-left:2px solid var(--accent); }
+  .target-hint.c-arms { background:var(--blue-bg); border-left:2px solid var(--blue); }
+  .target-hint.c-chest { background:var(--purple-bg); border-left:2px solid var(--purple); }
+  .hint-item { display:flex; flex-direction:column; gap:2px; }
+  .hint-val { font-family:'Bebas Neue',sans-serif; font-size:16px; line-height:1; }
+  .hint-val.c-legs { color:var(--accent); } .hint-val.c-arms { color:var(--blue); } .hint-val.c-chest { color:var(--purple); }
+  .hint-lbl { font-size:8px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); }
+
+  .serie-label { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); padding:8px 0 6px; }
+  .serie-row { display:grid; grid-template-columns:28px 1fr 1fr 80px; gap:8px; align-items:center; margin-bottom:8px; padding:10px 12px; background:var(--gray2); border-radius:8px; border:1px solid transparent; transition:border-color .2s,background .2s; }
+  .serie-row.done-ok { border-color:rgba(0,200,81,.3); background:rgba(0,200,81,.04); }
+  .serie-row.done-ko { border-color:rgba(232,0,29,.3); background:rgba(232,0,29,.04); }
+  .serie-num { font-family:'Bebas Neue',sans-serif; font-size:18px; color:var(--muted); text-align:center; line-height:1; }
+  .input-wrap { display:flex; flex-direction:column; gap:2px; }
+  .input-lbl { font-size:8px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); }
+  .perf-input { background:rgba(255,255,255,.05); border:1px solid var(--mid); border-radius:6px; color:var(--white); font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; padding:7px 10px; width:100%; outline:none; -webkit-appearance:none; }
+  .perf-input:focus { border-color:var(--red); }
+  .perf-input::placeholder { color:#333; font-weight:300; }
+  .status-btns { display:flex; gap:6px; flex-direction:column; }
+  .status-btn { border:1px solid var(--mid); border-radius:6px; background:var(--gray2); font-size:16px; padding:5px 0; cursor:pointer; text-align:center; line-height:1; }
+  .status-btn.sel-ok { background:var(--green-bg); border-color:var(--green); }
+  .status-btn.sel-ko { background:var(--red-bg); border-color:var(--red); }
+
+  .ss-divider { display:flex; align-items:center; gap:8px; margin:12px 0 8px; }
+  .ss-divider-line { flex:1; height:1px; background:var(--mid); }
+  .ss-divider-lbl { font-size:8px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+
+  .notes-wrap { margin-top:12px; }
+  .notes-input { width:100%; background:var(--gray2); border:1px solid var(--mid); border-radius:8px; color:#888; font-family:'DM Sans',sans-serif; font-size:12px; padding:10px 12px; outline:none; resize:none; min-height:52px; }
+  .notes-input:focus { border-color:var(--muted); color:var(--white); }
+  .notes-input::placeholder { color:#333; }
+
+  .save-wrap { padding:24px 16px 0; }
+  .save-btn { width:100%; color:var(--white); border:none; border-radius:10px; font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; padding:16px; cursor:pointer; }
+  .save-btn.legs { background:var(--red); }
+  .save-btn.arms { background:var(--blue); }
+  .save-btn.chest { background:var(--purple); }
+
+  .autosave-info { margin:10px 16px 0; padding:10px 14px; background:rgba(0,200,81,.06); border:1px solid rgba(0,200,81,.2); border-radius:8px; font-size:11px; color:var(--green); line-height:1.6; }
+
+  .history-filter { display:flex; gap:6px; padding:16px 16px 0; flex-wrap:wrap; }
+  .filter-btn { padding:7px 10px; font-family:'Bebas Neue',sans-serif; font-size:11px; letter-spacing:1px; border-radius:6px; border:1px solid var(--mid); background:var(--gray2); color:var(--muted); cursor:pointer; }
+  .filter-btn.active { color:var(--white); border-color:#555; background:var(--mid); }
+  .history-empty { text-align:center; padding:60px 20px; color:var(--muted); font-size:13px; }
+  .h-entry { margin:12px 16px 0; background:var(--gray); border-radius:12px; overflow:hidden; border:1px solid var(--mid); cursor:pointer; }
+  .h-entry-hdr { padding:14px 16px; display:flex; justify-content:space-between; align-items:center; }
+  .h-date { font-family:'Bebas Neue',sans-serif; font-size:16px; }
+  .h-type { font-size:9px; letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
+  .h-type.legs { color:var(--red); } .h-type.arms { color:var(--blue); } .h-type.chest { color:var(--purple); }
+  .h-score { display:flex; gap:6px; }
+  .s-ok { font-size:11px; color:var(--green); background:var(--green-bg); padding:3px 8px; border-radius:4px; font-weight:600; }
+  .s-ko { font-size:11px; color:var(--red); background:var(--red-bg); padding:3px 8px; border-radius:4px; font-weight:600; }
+  .h-detail { display:none; border-top:1px solid var(--mid); padding:12px 16px; }
+  .h-entry.open .h-detail { display:block; }
+  .h-exo-row { padding:6px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+  .h-exo-row:last-child { border-bottom:none; }
+  .h-exo-name { font-size:10px; font-weight:600; color:#777; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+  .h-chips { display:flex; flex-wrap:wrap; gap:5px; }
+  .chip { font-size:10px; padding:3px 7px; border-radius:4px; background:var(--gray2); border:1px solid var(--mid); color:#666; }
+  .chip.ok { border-color:rgba(0,200,81,.3); color:var(--green); background:var(--green-bg); }
+  .chip.ko { border-color:rgba(232,0,29,.3); color:#ff6b6b; background:var(--red-bg); }
+  .del-btn { margin:10px 0 0; background:none; border:1px solid var(--mid); color:var(--muted); border-radius:6px; font-size:11px; padding:6px 12px; cursor:pointer; }
+
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:2px; padding:10px 20px; border-radius:8px; opacity:0; transition:all .3s; pointer-events:none; white-space:nowrap; z-index:999; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast.ok { background:var(--green); color:#000; }
+  .toast.err { background:var(--red); color:#fff; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">TRACK <span>SÉANCES</span></div>
+    <div class="header-date" id="current-date"></div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" id="btn-history" onclick="showView('history')">HISTORIQUE</button>
+    <button class="btn btn-red" onclick="confirmNew()">+ SESSION</button>
+  </div>
+</div>
+
+<div class="session-tabs" id="session-tabs">
+  <div class="tab" id="tab-legs"  onclick="showView('legs')">🦵 JAMBES</div>
+  <div class="tab" id="tab-arms"  onclick="showView('arms')">💪 BRAS</div>
+  <div class="tab" id="tab-chest" onclick="showView('chest')">🏋️ PECS/DOS</div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+  <div class="progress-label"><span id="prog-text">—</span><span id="prog-pct">—</span></div>
+</div>
+
+<div id="legs-view"></div>
+<div id="arms-view"></div>
+<div id="chest-view"></div>
+
+<div id="history-view">
+  <div style="padding:24px 18px 8px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px">HISTORIQUE <span style="color:var(--red)">SÉANCES</span></div>
+  </div>
+  <div class="history-filter">
+    <div class="filter-btn active" id="f-all"   onclick="setFilter('all')">TOUT</div>
+    <div class="filter-btn" id="f-legs"  onclick="setFilter('legs')">🦵 JAMBES</div>
+    <div class="filter-btn" id="f-arms"  onclick="setFilter('arms')">💪 BRAS</div>
+    <div class="filter-btn" id="f-chest" onclick="setFilter('chest')">🏋️ PECS/DOS</div>
+  </div>
+  <div id="history-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIGS ────────────────────────────────────────────────────────────────
+var LEGS_EXOS = [
+  {name:'Hack Squat',           target:'Quadriceps · Amplitude profonde',       reps:'8–10',     tempo:'3-1-2-0', recup:"2'30"},
+  {name:'Leg Extension',        target:'Quadriceps · Isolation peak',           reps:'12–15',    tempo:'2-2-1-0', recup:"1'45"},
+  {name:'SDL Roumain haltères', target:'Ischios · Stretch maximal',             reps:'8–10',     tempo:'3-1-1-0', recup:"2'30"},
+  {name:'Hip Thrust Smith',     target:'Fessiers · Contraction peak',           reps:'10–15',    tempo:'1-2-1-0', recup:"2'00"},
+  {name:'Bulgarian Split Squat',target:'Quad · Fessier · Unilatéral',           reps:'10/jambe', tempo:'3-0-1-0', recup:"2'30"},
+];
+var ARMS_SS = [
+  {a:'Traction prise neutre',          b:'Dips',                       repsA:'6–8',   repsB:'8–10',  recup:"2'30", target:'Dos · Biceps / Pectoraux · Triceps'},
+  {a:'Curl marteau',                   b:'Extension triceps poulie',   repsA:'10–12', repsB:'12–15', recup:"1'45", target:'Biceps brachial / Triceps longue portion'},
+  {a:'Curl banc incliné',              b:'Extension triceps overhead', repsA:'10–12', repsB:'10–12', recup:"1'45", target:'Biceps longue portion / Triceps longue portion'},
+  {a:'Développé militaire',            b:'Face Pull poulie',           repsA:'8–10',  repsB:'12–15', recup:"2'00", target:'Deltoïde antérieur / Deltoïde postérieur'},
+  {a:'Élévations latérales haltères',  b:'Élévations latérales câble', repsA:'12–15', repsB:'15–20', recup:"1'30", target:'Deltoïde médial · Double angle'},
+];
+var CHEST_BLOCKS = [
+  {type:'solo', name:'Tractions lestées',        target:'Grand dorsal · Biceps · Haut du dos',        reps:'5–7',   tempo:'3-1-2-0', recup:"3'00", sets:4},
+  {type:'solo', name:'Presse inclinée haltères', target:'Pec supérieur · Faisceau claviculaire',      reps:'8–10',  tempo:'3-1-2-0', recup:"2'30", sets:4},
+  {type:'ss',   a:'Tirage horizontal poulie',    b:'Tirage vertical unilatéral poulie',
+   target:'Grand dorsal · Rhomboïdes / Grand dorsal unilatéral', repsA:'10–12', repsB:'10–12/côté', recup:"2'00", sets:3},
+  {type:'ss',   a:'Butterfly machine',           b:'Écarté poulie vis-à-vis (poulies basses)',
+   target:'Pec moyen · Contraction peak / Pec supérieur · Stretch', repsA:'12–15', repsB:'15–20', recup:"1'30", sets:3},
+];
+
+var currentView = 'legs';
+var historyFilter = 'all';
+var DATA = {};
+var HISTORY = [];
+var CURRENT_SESSION = {type:null, startTime:null};
+
+// ── STORAGE ────────────────────────────────────────────────────────────────
+function saveToStorage() {
+  try {
+    localStorage.setItem('tracker_data', JSON.stringify(DATA));
+    localStorage.setItem('tracker_history', JSON.stringify(HISTORY));
+    localStorage.setItem('tracker_session', JSON.stringify(CURRENT_SESSION));
+  } catch(e) {}
+}
+
+function loadFromStorage() {
+  try {
+    var d = localStorage.getItem('tracker_data');
+    var h = localStorage.getItem('tracker_history');
+    var s = localStorage.getItem('tracker_session');
+    if(d) DATA = JSON.parse(d);
+    if(h) HISTORY = JSON.parse(h);
+    if(s) CURRENT_SESSION = JSON.parse(s);
+  } catch(e) {}
+}
+
+// ── DATA ───────────────────────────────────────────────────────────────────
+function makeEmpty(n) {
+  var a=[]; for(var i=0;i<n;i++) a.push({kg:'',reps:'',status:''}); return a;
+}
+
+function initData() {
+  var i;
+  for(i=0;i<LEGS_EXOS.length;i++)    DATA['legs-'+i] = makeEmpty(3);
+  for(i=0;i<ARMS_SS.length;i++)      { DATA['arms-'+i+'-a']=makeEmpty(3); DATA['arms-'+i+'-b']=makeEmpty(3); }
+  for(i=0;i<CHEST_BLOCKS.length;i++) {
+    var b=CHEST_BLOCKS[i];
+    if(b.type==='solo') DATA['chest-'+i]=makeEmpty(b.sets||4);
+    else { DATA['chest-'+i+'-a']=makeEmpty(b.sets||3); DATA['chest-'+i+'-b']=makeEmpty(b.sets||3); }
+  }
+}
+
+function ensureDataKeys() {
+  var i;
+  for(i=0;i<LEGS_EXOS.length;i++)    if(!DATA['legs-'+i]) DATA['legs-'+i]=makeEmpty(3);
+  for(i=0;i<ARMS_SS.length;i++)      { if(!DATA['arms-'+i+'-a']) DATA['arms-'+i+'-a']=makeEmpty(3); if(!DATA['arms-'+i+'-b']) DATA['arms-'+i+'-b']=makeEmpty(3); }
+  for(i=0;i<CHEST_BLOCKS.length;i++) {
+    var b=CHEST_BLOCKS[i];
+    if(b.type==='solo') { if(!DATA['chest-'+i]) DATA['chest-'+i]=makeEmpty(b.sets||4); }
+    else { if(!DATA['chest-'+i+'-a']) DATA['chest-'+i+'-a']=makeEmpty(b.sets||3); if(!DATA['chest-'+i+'-b']) DATA['chest-'+i+'-b']=makeEmpty(b.sets||3); }
+  }
+}
+
+// ── BUILD DOM ──────────────────────────────────────────────────────────────
+function buildLegs() {
+  var html='',i,e;
+  for(i=0;i<LEGS_EXOS.length;i++){
+    e=LEGS_EXOS[i];
+    html+='<div class="exo-block" id="eb-legs-'+i+'">'
+      +'<div class="exo-header" onclick="toggleBlock(\'legs-'+i+'\')">'
+      +'<div class="exo-num c-legs">0'+(i+1)+'</div>'
+      +'<div class="exo-info"><div class="exo-name">'+e.name+'</div><div class="exo-target c-legs">'+e.target+'</div></div>'
+      +'<div class="exo-status" id="st-legs-'+i+'">—</div><div class="exo-chevron">▼</div></div>'
+      +'<div class="exo-body">'
+      +'<div class="target-hint c-legs">'
+      +'<div class="hint-item"><div class="hint-val c-legs">'+e.reps+'</div><div class="hint-lbl">Reps cible</div></div>'
+      +'<div class="hint-item"><div class="hint-val c-legs">'+e.tempo+'</div><div class="hint-lbl">Tempo</div></div>'
+      +'<div class="hint-item"><div class="hint-val c-legs">'+e.recup+'</div><div class="hint-lbl">Récup</div></div>'
+      +'</div><div class="serie-label">SÉRIES</div><div id="sr-legs-'+i+'"></div>'
+      +'<div class="notes-wrap"><textarea class="notes-input" id="nt-legs-'+i+'" placeholder="Notes, charge…" rows="2" onchange="saveNotes(\'legs\','+i+')"></textarea></div>'
+      +'</div></div>';
+  }
+  html+='<div class="save-wrap"><button class="save-btn legs" onclick="saveSession(\'legs\')">💾 TERMINER ET SAUVEGARDER</button></div>';
+  html+='<div class="autosave-info">✓ Données sauvegardées automatiquement à chaque saisie</div>';
+  document.getElementById('legs-view').innerHTML=html;
+}
+
+function buildArms() {
+  var html='',i,ss;
+  for(i=0;i<ARMS_SS.length;i++){
+    ss=ARMS_SS[i];
+    html+='<div class="exo-block" id="eb-arms-'+i+'">'
+      +'<div class="exo-header" onclick="toggleBlock(\'arms-'+i+'\')">'
+      +'<div class="exo-num c-arms">SS'+(i+1)+'</div>'
+      +'<div class="exo-info"><div class="ss-badge c-arms">Superset '+(i+1)+'</div>'
+      +'<div class="exo-name">'+ss.a+'</div><div class="exo-name-b">/ '+ss.b+'</div>'
+      +'<div class="exo-target c-arms">'+ss.target+'</div></div>'
+      +'<div class="exo-status" id="st-arms-'+i+'">—</div><div class="exo-chevron">▼</div></div>'
+      +'<div class="exo-body">'
+      +'<div class="target-hint c-arms">'
+      +'<div class="hint-item"><div class="hint-val c-arms">'+ss.repsA+'</div><div class="hint-lbl">Reps A</div></div>'
+      +'<div class="hint-item"><div class="hint-val c-arms">'+ss.repsB+'</div><div class="hint-lbl">Reps B</div></div>'
+      +'<div class="hint-item"><div class="hint-val c-arms">'+ss.recup+'</div><div class="hint-lbl">Récup</div></div>'
+      +'</div>'
+      +'<div class="serie-label">'+ss.a.toUpperCase()+' — SÉRIES</div><div id="sr-arms-'+i+'-a"></div>'
+      +'<div class="ss-divider"><div class="ss-divider-line"></div><div class="ss-divider-lbl">enchaîner sur '+ss.b+'</div><div class="ss-divider-line"></div></div>'
+      +'<div class="serie-label">'+ss.b.toUpperCase()+' — SÉRIES</div><div id="sr-arms-'+i+'-b"></div>'
+      +'<div class="notes-wrap"><textarea class="notes-input" id="nt-arms-'+i+'" placeholder="Notes, charge…" rows="2" onchange="saveNotes(\'arms\','+i+')"></textarea></div>'
+      +'</div></div>';
+  }
+  html+='<div class="save-wrap"><button class="save-btn arms" onclick="saveSession(\'arms\')">💾 TERMINER ET SAUVEGARDER</button></div>';
+  html+='<div class="autosave-info">✓ Données sauvegardées automatiquement à chaque saisie</div>';
+  document.getElementById('arms-view').innerHTML=html;
+}
+
+function buildChest() {
+  var html='',i,b;
+  for(i=0;i<CHEST_BLOCKS.length;i++){
+    b=CHEST_BLOCKS[i];
+    var ssNum = i-1;
+    if(b.type==='solo'){
+      html+='<div class="exo-block" id="eb-chest-'+i+'">'
+        +'<div class="exo-header" onclick="toggleBlock(\'chest-'+i+'\')">'
+        +'<div class="exo-num c-chest">0'+(i+1)+'</div>'
+        +'<div class="exo-info"><div class="solo-badge">Isolé · '+(b.sets||4)+' séries</div>'
+        +'<div class="exo-name">'+b.name+'</div><div class="exo-target c-chest">'+b.target+'</div></div>'
+        +'<div class="exo-status" id="st-chest-'+i+'">—</div><div class="exo-chevron">▼</div></div>'
+        +'<div class="exo-body">'
+        +'<div class="target-hint c-chest">'
+        +'<div class="hint-item"><div class="hint-val c-chest">'+b.reps+'</div><div class="hint-lbl">Reps cible</div></div>'
+        +'<div class="hint-item"><div class="hint-val c-chest">'+b.tempo+'</div><div class="hint-lbl">Tempo</div></div>'
+        +'<div class="hint-item"><div class="hint-val c-chest">'+b.recup+'</div><div class="hint-lbl">Récup</div></div>'
+        +'</div>'
+        +'<div class="serie-label">SÉRIES</div><div id="sr-chest-'+i+'"></div>'
+        +'<div class="notes-wrap"><textarea class="notes-input" id="nt-chest-'+i+'" placeholder="Notes, charge…" rows="2" onchange="saveNotes(\'chest\','+i+')"></textarea></div>'
+        +'</div></div>';
+    } else {
+      html+='<div class="exo-block" id="eb-chest-'+i+'">'
+        +'<div class="exo-header" onclick="toggleBlock(\'chest-'+i+'\')">'
+        +'<div class="exo-num c-chest">SS'+(ssNum)+'</div>'
+        +'<div class="exo-info"><div class="ss-badge c-chest">Superset '+(ssNum)+'</div>'
+        +'<div class="exo-name">'+b.a+'</div><div class="exo-name-b">/ '+b.b+'</div>'
+        +'<div class="exo-target c-chest">'+b.target+'</div></div>'
+        +'<div class="exo-status" id="st-chest-'+i+'">—</div><div class="exo-chevron">▼</div></div>'
+        +'<div class="exo-body">'
+        +'<div class="target-hint c-chest">'
+        +'<div class="hint-item"><div class="hint-val c-chest">'+b.repsA+'</div><div class="hint-lbl">Reps A</div></div>'
+        +'<div class="hint-item"><div class="hint-val c-chest">'+b.repsB+'</div><div class="hint-lbl">Reps B</div></div>'
+        +'<div class="hint-item"><div class="hint-val c-chest">'+b.recup+'</div><div class="hint-lbl">Récup</div></div>'
+        +'</div>'
+        +'<div class="serie-label">'+b.a.toUpperCase()+' — SÉRIES</div><div id="sr-chest-'+i+'-a"></div>'
+        +'<div class="ss-divider"><div class="ss-divider-line"></div><div class="ss-divider-lbl">enchaîner sur '+b.b+'</div><div class="ss-divider-line"></div></div>'
+        +'<div class="serie-label">'+b.b.toUpperCase()+' — SÉRIES</div><div id="sr-chest-'+i+'-b"></div>'
+        +'<div class="notes-wrap"><textarea class="notes-input" id="nt-chest-'+i+'" placeholder="Notes, charge…" rows="2" onchange="saveNotes(\'chest\','+i+')"></textarea></div>'
+        +'</div></div>';
+    }
+  }
+  html+='<div class="save-wrap"><button class="save-btn chest" onclick="saveSession(\'chest\')">💾 TERMINER ET SAUVEGARDER</button></div>';
+  html+='<div class="autosave-info">✓ Données sauvegardées automatiquement à chaque saisie</div>';
+  document.getElementById('chest-view').innerHTML=html;
+}
+
+// ── SERIES ─────────────────────────────────────────────────────────────────
+function renderSeries(key) {
+  var c=document.getElementById('sr-'+key); if(!c) return;
+  var d=DATA[key]; if(!d) return;
+  var html='';
+  for(var i=0;i<d.length;i++){
+    var s=d[i];
+    html+='<div class="serie-row'+(s.status==='✅'?' done-ok':s.status==='❌'?' done-ko':'')+'">'
+      +'<div class="serie-num">'+(i+1)+'</div>'
+      +'<div class="input-wrap"><div class="input-lbl">KG</div>'
+      +'<input class="perf-input" type="number" inputmode="decimal" placeholder="—" value="'+s.kg+'" onchange="setVal(\''+key+'\','+i+',\'kg\',this.value)"/></div>'
+      +'<div class="input-wrap"><div class="input-lbl">REPS</div>'
+      +'<input class="perf-input" type="number" inputmode="numeric" placeholder="—" value="'+s.reps+'" onchange="setVal(\''+key+'\','+i+',\'reps\',this.value)"/></div>'
+      +'<div class="status-btns">'
+      +'<button class="status-btn'+(s.status==='✅'?' sel-ok':'')+'" onclick="setStatus(\''+key+'\','+i+',\'✅\')">✅</button>'
+      +'<button class="status-btn'+(s.status==='❌'?' sel-ko':'')+'" onclick="setStatus(\''+key+'\','+i+',\'❌\')">❌</button>'
+      +'</div></div>';
+  }
+  c.innerHTML=html;
+}
+
+function setVal(key,i,field,val) {
+  DATA[key][i][field]=val;
+  saveToStorage();
+  updateProgress();
+}
+
+function setStatus(key,i,status) {
+  DATA[key][i].status = DATA[key][i].status===status ? '' : status;
+  renderSeries(key);
+  updateBlockStatus(key);
+  updateProgress();
+  saveToStorage();
+}
+
+function saveNotes(type,i) {
+  var nt=document.getElementById('nt-'+type+'-'+i);
+  if(nt) { DATA['note-'+type+'-'+i]=nt.value; saveToStorage(); }
+}
+
+function updateBlockStatus(key) {
+  var parts=key.split('-'), type=parts[0], idx=parts[1], ab=parts[2];
+  var stEl=document.getElementById('st-'+type+'-'+idx); if(!stEl) return;
+  var arr=ab ? (DATA[type+'-'+idx+'-a']||[]).concat(DATA[type+'-'+idx+'-b']||[]) : (DATA[key]||[]);
+  stEl.textContent=getIcon(arr);
+}
+
+function getIcon(arr) {
+  var done=0,ok=0,ko=0;
+  for(var i=0;i<arr.length;i++){if(arr[i].status!=='')done++;if(arr[i].status==='✅')ok++;if(arr[i].status==='❌')ko++;}
+  if(!arr.length) return '—';
+  if(done===arr.length) return ko===0?'🔥':ok>ko?'💪':'😤';
+  if(done>0) return '⏳';
+  return '—';
+}
+
+function updateProgress() {
+  var keys=[],i,fill=document.getElementById('prog-fill');
+  if(currentView==='legs')  { for(i=0;i<LEGS_EXOS.length;i++) keys.push('legs-'+i); fill.className='progress-fill legs'; }
+  else if(currentView==='arms')  { for(i=0;i<ARMS_SS.length;i++){keys.push('arms-'+i+'-a');keys.push('arms-'+i+'-b');} fill.className='progress-fill arms'; }
+  else if(currentView==='chest') { for(i=0;i<CHEST_BLOCKS.length;i++){if(CHEST_BLOCKS[i].type==='solo')keys.push('chest-'+i);else{keys.push('chest-'+i+'-a');keys.push('chest-'+i+'-b');}} fill.className='progress-fill chest'; }
+  var total=0,done=0;
+  for(var k=0;k<keys.length;k++){var d=DATA[keys[k]];if(!d)continue;total+=d.length;for(var j=0;j<d.length;j++)if(d[j].status!=='')done++;}
+  var pct=total>0?Math.round(done/total*100):0;
+  fill.style.width=pct+'%';
+  document.getElementById('prog-text').textContent=done+' / '+total+' séries';
+  document.getElementById('prog-pct').textContent=pct+'%';
+}
+
+function toggleBlock(key) {
+  var el=document.getElementById('eb-'+key); if(!el) return;
+  el.classList.toggle('open');
+  el.querySelector('.exo-chevron').textContent=el.classList.contains('open')?'▲':'▼';
+}
+
+// ── VIEWS ──────────────────────────────────────────────────────────────────
+function showView(v) {
+  currentView=v;
+  ['legs','arms','chest','history'].forEach(function(x){document.getElementById(x+'-view').style.display=v===x?'block':'none';});
+  document.getElementById('session-tabs').style.display=v==='history'?'none':'flex';
+  document.getElementById('tab-legs').className ='tab'+(v==='legs'?' active-legs':'');
+  document.getElementById('tab-arms').className ='tab'+(v==='arms'?' active-arms':'');
+  document.getElementById('tab-chest').className='tab'+(v==='chest'?' active-chest':'');
+  document.getElementById('btn-history').classList.toggle('active',v==='history');
+  updateProgress();
+  if(v==='history') renderHistory();
+}
+
+function restoreNotesFields() {
+  var types=['legs','arms','chest'], i;
+  for(var t=0;t<types.length;t++){
+    var type=types[t];
+    var len=type==='legs'?LEGS_EXOS.length:type==='arms'?ARMS_SS.length:CHEST_BLOCKS.length;
+    for(i=0;i<len;i++){
+      var nt=document.getElementById('nt-'+type+'-'+i);
+      if(nt && DATA['note-'+type+'-'+i]) nt.value=DATA['note-'+type+'-'+i];
+    }
+  }
+}
+
+function restoreAllStatuses() {
+  var i;
+  for(i=0;i<LEGS_EXOS.length;i++) updateBlockStatus('legs-'+i);
+  for(i=0;i<ARMS_SS.length;i++)   { updateBlockStatus('arms-'+i+'-a'); }
+  for(i=0;i<CHEST_BLOCKS.length;i++) {
+    if(CHEST_BLOCKS[i].type==='solo') updateBlockStatus('chest-'+i);
+    else updateBlockStatus('chest-'+i+'-a');
+  }
+}
+
+// ── NEW SESSION ────────────────────────────────────────────────────────────
+function confirmNew() {
+  if(confirm('Nouvelle session ? Les données en cours seront effacées (l\'historique reste intact).')) {
+    initData();
+    renderAllSeries();
+    var types=['legs','arms','chest'],i;
+    for(var t=0;t<types.length;t++){
+      var type=types[t];
+      var len=type==='legs'?LEGS_EXOS.length:type==='arms'?ARMS_SS.length:CHEST_BLOCKS.length;
+      for(i=0;i<len;i++){var nt=document.getElementById('nt-'+type+'-'+i);if(nt)nt.value='';var st=document.getElementById('st-'+type+'-'+i);if(st)st.textContent='—';}
+    }
+    CURRENT_SESSION={type:null,startTime:new Date().toISOString()};
+    saveToStorage();
+    updateProgress();
+    showToast('NOUVELLE SESSION PRÊTE',false);
+  }
+}
+
+// ── SAVE SESSION TO HISTORY ────────────────────────────────────────────────
+function saveSession(type) {
+  var entry={id:Date.now(),date:new Date().toISOString(),type:type,data:{},notes:[]},i;
+  if(type==='legs'){
+    for(i=0;i<LEGS_EXOS.length;i++){entry.data[i]=JSON.parse(JSON.stringify(DATA['legs-'+i]||[]));entry.notes.push(DATA['note-legs-'+i]||'');}
+  } else if(type==='arms'){
+    for(i=0;i<ARMS_SS.length;i++){entry.data[i]={a:JSON.parse(JSON.stringify(DATA['arms-'+i+'-a']||[])),b:JSON.parse(JSON.stringify(DATA['arms-'+i+'-b']||[]))};entry.notes.push(DATA['note-arms-'+i]||'');}
+  } else {
+    for(i=0;i<CHEST_BLOCKS.length;i++){
+      if(CHEST_BLOCKS[i].type==='solo') entry.data[i]=JSON.parse(JSON.stringify(DATA['chest-'+i]||[]));
+      else entry.data[i]={a:JSON.parse(JSON.stringify(DATA['chest-'+i+'-a']||[])),b:JSON.parse(JSON.stringify(DATA['chest-'+i+'-b']||[]))};
+      entry.notes.push(DATA['note-chest-'+i]||'');
+    }
+  }
+  HISTORY.unshift(entry);
+  saveToStorage();
+  showToast('SÉANCE ENREGISTRÉE 🔥',false);
+}
+
+// ── HISTORY ────────────────────────────────────────────────────────────────
+function setFilter(f) {
+  historyFilter=f;
+  ['all','legs','arms','chest'].forEach(function(x){document.getElementById('f-'+x).classList.toggle('active',x===f);});
+  renderHistory();
+}
+
+function renderHistory() {
+  var list=document.getElementById('history-list');
+  var entries=HISTORY.filter(function(e){return historyFilter==='all'||e.type===historyFilter;});
+  if(!entries.length){list.innerHTML='<div class="history-empty">Aucune séance enregistrée.</div>';return;}
+  var html='';
+  for(var ei=0;ei<entries.length;ei++){
+    var entry=entries[ei];
+    var d=new Date(entry.date);
+    var ds=d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:'2-digit'}).toUpperCase();
+    var ok=0,ko=0,detail='';
+    var typeLabel=entry.type==='legs'?'🦵 JAMBES':entry.type==='arms'?'💪 BRAS / ÉPAULES':'🏋️ PECS / DOS';
+    var exos=entry.type==='legs'?LEGS_EXOS:entry.type==='arms'?ARMS_SS:CHEST_BLOCKS;
+    for(var i=0;i<exos.length;i++){
+      var ed=entry.data[i]; if(!ed) continue;
+      var note=entry.notes&&entry.notes[i]?'<div style="font-size:10px;color:#555;margin-top:3px;font-style:italic">'+entry.notes[i]+'</div>':'';
+      if(entry.type==='legs'){
+        var chips='';
+        (Array.isArray(ed)?ed:[]).forEach(function(sx){var cls=sx.status==='✅'?'ok':sx.status==='❌'?'ko':'';if(sx.status==='✅')ok++;if(sx.status==='❌')ko++;chips+='<span class="chip '+cls+'">'+(sx.kg||'?')+'kg×'+(sx.reps||'?')+' '+(sx.status||'—')+'</span>';});
+        detail+='<div class="h-exo-row"><div class="h-exo-name">'+LEGS_EXOS[i].name+'</div><div class="h-chips">'+chips+'</div>'+note+'</div>';
+      } else if(entry.type==='arms'){
+        var chA='',chB='';
+        (ed.a||[]).forEach(function(sx){var cls=sx.status==='✅'?'ok':sx.status==='❌'?'ko':'';if(sx.status==='✅')ok++;if(sx.status==='❌')ko++;chA+='<span class="chip '+cls+'">'+(sx.kg||'?')+'kg×'+(sx.reps||'?')+' '+(sx.status||'—')+'</span>';});
+        (ed.b||[]).forEach(function(sx){var cls=sx.status==='✅'?'ok':sx.status==='❌'?'ko':'';if(sx.status==='✅')ok++;if(sx.status==='❌')ko++;chB+='<span class="chip '+cls+'">'+(sx.kg||'?')+'kg×'+(sx.reps||'?')+' '+(sx.status||'—')+'</span>';});
+        detail+='<div class="h-exo-row"><div class="h-exo-name">'+ARMS_SS[i].a+'</div><div class="h-chips">'+chA+'</div><div class="h-exo-name" style="margin-top:5px">'+ARMS_SS[i].b+'</div><div class="h-chips">'+chB+'</div>'+note+'</div>';
+      } else {
+        var bl=CHEST_BLOCKS[i];
+        if(bl.type==='solo'){
+          var chips='';
+          (Array.isArray(ed)?ed:[]).forEach(function(sx){var cls=sx.status==='✅'?'ok':sx.status==='❌'?'ko':'';if(sx.status==='✅')ok++;if(sx.status==='❌')ko++;chips+='<span class="chip '+cls+'">'+(sx.kg||'?')+'kg×'+(sx.reps||'?')+' '+(sx.status||'—')+'</span>';});
+          detail+='<div class="h-exo-row"><div class="h-exo-name">'+bl.name+'</div><div class="h-chips">'+chips+'</div>'+note+'</div>';
+        } else {
+          var chA='',chB='';
+          (ed.a||[]).forEach(function(sx){var cls=sx.status==='✅'?'ok':sx.status==='❌'?'ko':'';if(sx.status==='✅')ok++;if(sx.status==='❌')ko++;chA+='<span class="chip '+cls+'">'+(sx.kg||'?')+'kg×'+(sx.reps||'?')+' '+(sx.status||'—')+'</span>';});
+          (ed.b||[]).forEach(function(sx){var cls=sx.status==='✅'?'ok':sx.status==='❌'?'ko':'';if(sx.status==='✅')ok++;if(sx.status==='❌')ko++;chB+='<span class="chip '+cls+'">'+(sx.kg||'?')+'kg×'+(sx.reps||'?')+' '+(sx.status||'—')+'</span>';});
+          detail+='<div class="h-exo-row"><div class="h-exo-name">'+bl.a+'</div><div class="h-chips">'+chA+'</div><div class="h-exo-name" style="margin-top:5px">'+bl.b+'</div><div class="h-chips">'+chB+'</div>'+note+'</div>';
+        }
+      }
+    }
+    html+='<div class="h-entry" id="he-'+entry.id+'" onclick="toggleHEntry(\''+entry.id+'\')">'
+      +'<div class="h-entry-hdr"><div><div class="h-date">'+ds+'</div><div class="h-type '+entry.type+'">'+typeLabel+'</div></div>'
+      +'<div class="h-score">'+(ok?'<span class="s-ok">✅ '+ok+'</span>':'')+(ko?'<span class="s-ko">❌ '+ko+'</span>':'')+'</div></div>'
+      +'<div class="h-detail">'+detail+'<button class="del-btn" onclick="delEntry(event,\''+entry.id+'\')">Supprimer</button></div>'
+      +'</div>';
+  }
+  list.innerHTML=html;
+}
+
+function toggleHEntry(id){var el=document.getElementById('he-'+id);if(el)el.classList.toggle('open');}
+
+function delEntry(e,id){
+  e.stopPropagation();
+  if(confirm('Supprimer cette séance ?')){
+    HISTORY=HISTORY.filter(function(s){return s.id!=id;});
+    saveToStorage(); renderHistory();
+    showToast('Séance supprimée',true);
+  }
+}
+
+function showToast(msg,isErr){
+  var t=document.getElementById('toast');t.textContent=msg;
+  t.className='toast show '+(isErr?'err':'ok');
+  setTimeout(function(){t.className='toast '+(isErr?'err':'ok');},2500);
+}
+
+function renderAllSeries(){
+  var i;
+  for(i=0;i<LEGS_EXOS.length;i++) renderSeries('legs-'+i);
+  for(i=0;i<ARMS_SS.length;i++){renderSeries('arms-'+i+'-a');renderSeries('arms-'+i+'-b');}
+  for(i=0;i<CHEST_BLOCKS.length;i++){
+    if(CHEST_BLOCKS[i].type==='solo') renderSeries('chest-'+i);
+    else{renderSeries('chest-'+i+'-a');renderSeries('chest-'+i+'-b');}
+  }
+}
+
+// ── SERVICE WORKER ─────────────────────────────────────────────────────────
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(function(){});
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+function init(){
+  document.getElementById('current-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+  loadFromStorage();
+  ensureDataKeys();
+  buildLegs(); buildArms(); buildChest();
+  renderAllSeries();
+  restoreNotesFields();
+  restoreAllStatuses();
+  showView('legs');
+}
+
+init();
+</script>
+</body>
+</html>
