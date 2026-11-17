@@ -17,6 +17,8 @@
     --accent:#ff4d00; --green:#00c851; --green-bg:rgba(0,200,81,0.1);
     --blue:#4d9fff; --blue-bg:rgba(77,159,255,0.08); --blue-dim:#1a4a80;
     --purple:#a855f7; --purple-bg:rgba(168,85,247,0.08); --purple-dim:#4a1a80;
+    --teal:#2dd4bf; --teal-bg:rgba(45,212,191,0.08); --teal-dim:#115e59;
+    --amber:#f59e0b; --amber-bg:rgba(245,158,11,0.08); --amber-dim:#78490a;
   }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body { background:var(--black); color:var(--white); font-family:'DM Sans',sans-serif; min-height:100vh; padding-bottom:80px; }
@@ -31,8 +33,9 @@
   .btn-ghost { background:var(--gray2); color:#888; border:1px solid var(--mid); }
   .btn-ghost.active { color:var(--white); border-color:#555; }
 
-  .session-tabs { display:flex; border-bottom:1px solid var(--mid); background:rgba(10,10,10,0.97); position:sticky; top:57px; z-index:99; }
-  .tab { flex:1; padding:11px 4px; text-align:center; font-family:'Bebas Neue',sans-serif; font-size:11px; letter-spacing:1px; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; }
+  .session-tabs { display:flex; border-bottom:1px solid var(--mid); background:rgba(10,10,10,0.97); position:sticky; top:57px; z-index:99; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .session-tabs::-webkit-scrollbar { display:none; }
+  .tab { flex:1 0 auto; padding:11px 10px; text-align:center; font-family:'Bebas Neue',sans-serif; font-size:11px; letter-spacing:1px; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; }
   .tab.active-legs { color:var(--red); border-bottom-color:var(--red); }
   .tab.active-arms { color:var(--blue); border-bottom-color:var(--blue); }
   .tab.active-chest { color:var(--purple); border-bottom-color:var(--purple); }
@@ -134,6 +137,70 @@
   .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
   .toast.ok { background:var(--green); color:#000; }
   .toast.err { background:var(--red); color:#fff; }
+
+  /* 4 onglets */
+  .session-tabs .tab { letter-spacing:.5px; font-size:10.5px; white-space:nowrap; }
+  .tab.active-mob { color:var(--teal); border-bottom-color:var(--teal); }
+  .progress-fill.mob { background:var(--teal); }
+  #mob-view, #neck-view { display:none; }
+
+  /* MOBILITÉ */
+  .mob-head { margin:16px 16px 0; padding:18px 16px; border:1px solid var(--mid); border-radius:12px; background:var(--gray); }
+  .mob-date { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:2px; line-height:1; text-transform:uppercase; }
+  .mob-sub { font-size:9px; letter-spacing:3px; color:var(--teal); text-transform:uppercase; margin-top:5px; }
+  .mob-count-row { display:flex; align-items:flex-end; justify-content:space-between; margin-top:16px; }
+  .mob-count { font-family:'Bebas Neue',sans-serif; font-size:56px; line-height:.9; }
+  .mob-count small { font-size:26px; color:var(--muted); }
+  .mob-badge { font-size:10px; letter-spacing:2px; font-weight:700; padding:7px 11px; border-radius:6px; border:1px solid var(--mid); color:var(--muted); text-transform:uppercase; }
+  .mob-badge.doing { color:var(--teal); border-color:var(--teal-dim); background:var(--teal-bg); }
+  .mob-badge.done { color:#000; background:var(--teal); border-color:var(--teal); }
+  .mob-week { display:flex; gap:6px; margin-top:16px; }
+  .mob-day { flex:1; text-align:center; }
+  .mob-day-l { font-size:9px; letter-spacing:1px; color:var(--muted); margin-bottom:5px; }
+  .mob-day.today .mob-day-l { color:var(--white); }
+  .mob-dot { height:26px; border-radius:7px; border:1px solid var(--mid); background:var(--gray2); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; }
+  .mob-dot.part { background:var(--teal-bg); border-color:var(--teal-dim); color:var(--teal); }
+  .mob-dot.full { background:var(--teal); border-color:var(--teal); color:#000; }
+  .mob-day.today .mob-dot { outline:1px solid var(--white); outline-offset:1px; }
+  .mob-streak { margin-top:12px; font-size:11px; color:#888; letter-spacing:1px; }
+  .mob-name { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:.5px; line-height:1.1; }
+  .mob-desc { font-size:11px; font-weight:300; color:#777; line-height:1.5; margin-top:3px; }
+  .mob-reset { width:100%; background:none; border:1px solid var(--mid); color:var(--muted); border-radius:10px; font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:2px; padding:12px; cursor:pointer; }
+
+  /* COU */
+  .tab.active-neck { color:var(--amber); border-bottom-color:var(--amber); }
+  .progress-fill.neck { background:var(--amber); }
+  .h-type.neck { color:var(--amber); }
+  .save-btn.neck { background:var(--amber); color:#000; }
+  .exo-num.c-neck { color:var(--amber-dim); }
+  .exo-target.c-neck { color:var(--amber); }
+  .target-hint.c-neck { background:var(--amber-bg); border-left:2px solid var(--amber); }
+  .hint-val.c-neck { color:var(--amber); }
+  .cues { margin-bottom:12px; }
+  .cue { display:flex; gap:8px; margin-bottom:6px; }
+  .cue-dot { width:5px; height:5px; border-radius:50%; background:var(--amber); margin-top:6px; flex-shrink:0; }
+  .cue-txt { font-size:12px; font-weight:300; color:#aaa; line-height:1.6; }
+  .neck-sched { margin:16px 16px 0; padding:16px; border:1px solid var(--mid); border-radius:12px; background:var(--gray); }
+  .neck-sched-top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .neck-sched-lbl { font-size:9px; letter-spacing:3px; color:var(--amber); text-transform:uppercase; }
+  .neck-badge { font-size:10px; letter-spacing:2px; font-weight:700; padding:6px 10px; border-radius:6px; border:1px solid var(--mid); color:var(--muted); text-transform:uppercase; white-space:nowrap; }
+  .neck-badge.due { color:#000; background:var(--amber); border-color:var(--amber); }
+  .neck-badge.rest { color:var(--green); border-color:rgba(0,200,81,.3); background:var(--green-bg); }
+  .neck-sched-line { margin-top:10px; font-size:13px; }
+  .neck-warn { margin-top:10px; font-size:11px; font-weight:300; color:#888; line-height:1.5; }
+
+  /* MOBILITÉ : répétitions + succès / échec */
+  .mob-score { margin-top:10px; font-size:12px; color:#888; letter-spacing:1px; min-height:16px; }
+  .mob-row { margin:10px 16px 0; padding:14px; background:var(--gray); border:1px solid var(--mid); border-radius:12px; transition:border-color .2s, background .2s; }
+  .mob-row.ok { border-color:rgba(0,200,81,.3); background:rgba(0,200,81,.04); }
+  .mob-row.ko { border-color:rgba(232,0,29,.3); background:rgba(232,0,29,.04); }
+  .mob-top { display:flex; gap:12px; align-items:flex-start; }
+  .mob-num { font-family:'Bebas Neue',sans-serif; font-size:28px; line-height:1; color:var(--teal-dim); min-width:26px; }
+  .mob-info { flex:1; }
+  .mob-ctrl { display:flex; gap:10px; align-items:flex-end; margin-top:12px; }
+  .mob-ctrl .input-wrap { flex:1; }
+  .mob-ctrl .status-btns { flex-direction:row; }
+  .mob-ctrl .status-btn { width:56px; height:38px; font-size:18px; padding:0; }
 </style>
 </head>
 <body>
@@ -153,6 +220,8 @@
   <div class="tab" id="tab-legs"  onclick="showView('legs')">🦵 JAMBES</div>
   <div class="tab" id="tab-arms"  onclick="showView('arms')">💪 BRAS</div>
   <div class="tab" id="tab-chest" onclick="showView('chest')">🏋️ PECS/DOS</div>
+  <div class="tab" id="tab-mob"   onclick="showView('mob')">🧘 MOBILITÉ</div>
+  <div class="tab" id="tab-neck"  onclick="showView('neck')">🦴 COU</div>
 </div>
 
 <div class="progress-bar-wrap">
@@ -163,6 +232,8 @@
 <div id="legs-view"></div>
 <div id="arms-view"></div>
 <div id="chest-view"></div>
+<div id="mob-view"></div>
+<div id="neck-view"></div>
 
 <div id="history-view">
   <div style="padding:16px 18px 8px;display:flex;align-items:center;gap:14px">
@@ -174,6 +245,7 @@
     <div class="filter-btn" id="f-legs"  onclick="setFilter('legs')">🦵 JAMBES</div>
     <div class="filter-btn" id="f-arms"  onclick="setFilter('arms')">💪 BRAS</div>
     <div class="filter-btn" id="f-chest" onclick="setFilter('chest')">🏋️ PECS/DOS</div>
+    <div class="filter-btn" id="f-neck"  onclick="setFilter('neck')">🦴 COU</div>
   </div>
   <div id="history-list"></div>
 </div>
@@ -203,6 +275,22 @@ var CHEST_BLOCKS = [
    target:'Grand dorsal · Rhomboïdes / Grand dorsal unilatéral', repsA:'10–12', repsB:'10–12/côté', recup:"2'00", sets:3},
   {type:'ss',   a:'Butterfly machine',           b:'Écarté poulie vis-à-vis (poulies basses)',
    target:'Pec moyen · Contraction peak / Pec supérieur · Stretch', repsA:'12–15', repsB:'15–20', recup:"1'30", sets:3},
+];
+
+var NECK_INTERVAL = 3; // une séance cou tous les 3 jours
+var NECK_EXOS = [
+  {name:'Pont de nuque avant', target:'Fléchisseurs & extenseurs du cou · Poids du corps', reps:'8–12', tempo:'2-1-2-0', recup:"1'30",
+   cues:['Appui sur le front, mains jointes derrière la tête pour doser le poids.',
+         'Balancement lent d\u2019avant en arrière, sans à-coups : 2 s à l\u2019aller, 2 s au retour.',
+         'Progresse en amplitude puis en charge, jamais en vitesse.']},
+  {name:'Flexion de nuque avec disque', target:'Fléchisseurs du cou · Allongé sur banc', reps:'12–15', tempo:'2-1-2-0', recup:"1'30",
+   cues:['Allongé sur le dos, disque tenu à deux mains sur le front.',
+         'Menton vers la poitrine sur 2 s, pause 1 s, retour lent et contrôlé.',
+         'Charge très légère : la nuque doit rester maîtrisée sur toute la série.']},
+  {name:'Extension de nuque au harnais', target:'Extenseurs du cou · Trapèzes supérieurs · Assis', reps:'12–15', tempo:'2-1-2-0', recup:"1'30",
+   cues:['Assis, harnais bien ajusté, disque suspendu entre les jambes, mains sur les genoux, dos neutre.',
+         'Laisse la tête descendre sur 2 s, puis remonte en extension, pause 1 s en haut.',
+         'Seul le cou travaille : épaules et dos restent fixes.']}
 ];
 
 var currentView = 'legs';
@@ -240,6 +328,7 @@ function makeEmpty(n) {
 function initData() {
   var i;
   for(i=0;i<LEGS_EXOS.length;i++)    DATA['legs-'+i] = makeEmpty(3);
+  for(i=0;i<NECK_EXOS.length;i++)    DATA['neck-'+i] = makeEmpty(3);
   for(i=0;i<ARMS_SS.length;i++)      { DATA['arms-'+i+'-a']=makeEmpty(3); DATA['arms-'+i+'-b']=makeEmpty(3); }
   for(i=0;i<CHEST_BLOCKS.length;i++) {
     var b=CHEST_BLOCKS[i];
@@ -251,6 +340,7 @@ function initData() {
 function ensureDataKeys() {
   var i;
   for(i=0;i<LEGS_EXOS.length;i++)    if(!DATA['legs-'+i]) DATA['legs-'+i]=makeEmpty(3);
+  for(i=0;i<NECK_EXOS.length;i++)    if(!DATA['neck-'+i]) DATA['neck-'+i]=makeEmpty(3);
   for(i=0;i<ARMS_SS.length;i++)      { if(!DATA['arms-'+i+'-a']) DATA['arms-'+i+'-a']=makeEmpty(3); if(!DATA['arms-'+i+'-b']) DATA['arms-'+i+'-b']=makeEmpty(3); }
   for(i=0;i<CHEST_BLOCKS.length;i++) {
     var b=CHEST_BLOCKS[i];
@@ -358,6 +448,97 @@ function buildChest() {
   document.getElementById('chest-view').innerHTML=html;
 }
 
+// ── COU ────────────────────────────────────────────────────────────────────
+function buildNeck() {
+  var html='<div class="neck-sched" id="neck-sched"></div>', i, e, c, cues;
+  for(i=0;i<NECK_EXOS.length;i++){
+    e=NECK_EXOS[i]; cues='';
+    for(c=0;c<e.cues.length;c++) cues+='<div class="cue"><div class="cue-dot"></div><div class="cue-txt">'+e.cues[c]+'</div></div>';
+    html+='<div class="exo-block" id="eb-neck-'+i+'">'
+      +'<div class="exo-header" onclick="toggleBlock(\'neck-'+i+'\')">'
+      +'<div class="exo-num c-neck">0'+(i+1)+'</div>'
+      +'<div class="exo-info"><div class="exo-name">'+e.name+'</div><div class="exo-target c-neck">'+e.target+'</div></div>'
+      +'<div class="exo-status" id="st-neck-'+i+'">—</div><div class="exo-chevron">▼</div></div>'
+      +'<div class="exo-body">'
+      +'<div class="target-hint c-neck">'
+      +'<div class="hint-item"><div class="hint-val c-neck">'+e.reps+'</div><div class="hint-lbl">Reps cible</div></div>'
+      +'<div class="hint-item"><div class="hint-val c-neck">'+e.tempo+'</div><div class="hint-lbl">Tempo</div></div>'
+      +'<div class="hint-item"><div class="hint-val c-neck">'+e.recup+'</div><div class="hint-lbl">Récup</div></div>'
+      +'</div><div class="cues">'+cues+'</div>'
+      +'<div class="serie-label">SÉRIES</div><div id="sr-neck-'+i+'"></div>'
+      +'<div class="notes-wrap"><textarea class="notes-input" id="nt-neck-'+i+'" placeholder="Notes, charge…" rows="2" onchange="saveNotes(\'neck\','+i+')"></textarea></div>'
+      +'</div></div>';
+  }
+  html+='<div class="save-wrap"><button class="save-btn neck" onclick="saveSession(\'neck\')">💾 TERMINER ET SAUVEGARDER</button></div>';
+  html+='<div class="autosave-info">✓ Données sauvegardées automatiquement à chaque saisie</div>';
+  document.getElementById('neck-view').innerHTML=html;
+  renderNeckSchedule();
+}
+
+function renderNeckSchedule() {
+  var el=document.getElementById('neck-sched'); if(!el) return;
+  var last=null, i;
+  for(i=0;i<HISTORY.length;i++) if(HISTORY[i].type==='neck') { last=HISTORY[i]; break; }
+  var today=new Date(); today.setHours(0,0,0,0);
+  var cls, badge, line;
+  if(!last) {
+    cls='due'; badge='À FAIRE AUJOURD\u2019HUI'; line='Aucune séance enregistrée pour le moment.';
+  } else {
+    var ld=new Date(last.date); ld.setHours(0,0,0,0);
+    var since=Math.round((today-ld)/86400000);
+    var next=new Date(ld); next.setDate(next.getDate()+NECK_INTERVAL);
+    var nextStr=next.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+    var lastStr=ld.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+    if(since>=NECK_INTERVAL) {
+      cls='due'; badge='À FAIRE AUJOURD\u2019HUI';
+      line='Dernière séance : '+lastStr+(since>NECK_INTERVAL?' · en retard de '+(since-NECK_INTERVAL)+' j':'');
+    } else {
+      var rem=NECK_INTERVAL-since;
+      cls='rest'; badge=since===0?'SÉANCE FAITE ✓':'REPOS';
+      line='Prochaine séance : '+nextStr+' (dans '+rem+' jour'+(rem>1?'s':'')+')';
+    }
+  }
+  el.innerHTML='<div class="neck-sched-top"><div class="neck-sched-lbl">1 séance tous les '+NECK_INTERVAL+' jours</div>'
+    +'<div class="neck-badge '+cls+'">'+badge+'</div></div>'
+    +'<div class="neck-sched-line">'+line+'</div>'
+    +'<div class="neck-warn">Charges légères, mouvements lents et contrôlés. Arrête-toi en cas de douleur ou de fourmillements.</div>';
+}
+
+// ── NOUVELLE SÉANCE (par onglet) ───────────────────────────────────────────
+var TAB_LABELS = {legs:'Jambes', arms:'Bras / Épaules', chest:'Pecs / Dos', neck:'Cou'};
+function tabLen(type) {
+  return type==='legs'?LEGS_EXOS.length:type==='arms'?ARMS_SS.length:type==='chest'?CHEST_BLOCKS.length:NECK_EXOS.length;
+}
+function resetTab(type) {
+  var i, b;
+  if(type==='legs') { for(i=0;i<LEGS_EXOS.length;i++) DATA['legs-'+i]=makeEmpty(3); }
+  else if(type==='arms') { for(i=0;i<ARMS_SS.length;i++){ DATA['arms-'+i+'-a']=makeEmpty(3); DATA['arms-'+i+'-b']=makeEmpty(3); } }
+  else if(type==='neck') { for(i=0;i<NECK_EXOS.length;i++) DATA['neck-'+i]=makeEmpty(3); }
+  else {
+    for(i=0;i<CHEST_BLOCKS.length;i++){
+      b=CHEST_BLOCKS[i];
+      if(b.type==='solo') DATA['chest-'+i]=makeEmpty(b.sets||4);
+      else { DATA['chest-'+i+'-a']=makeEmpty(b.sets||3); DATA['chest-'+i+'-b']=makeEmpty(b.sets||3); }
+    }
+  }
+  for(i=0;i<tabLen(type);i++){
+    delete DATA['note-'+type+'-'+i];
+    var nt=document.getElementById('nt-'+type+'-'+i); if(nt) nt.value='';
+    var st=document.getElementById('st-'+type+'-'+i); if(st) st.textContent='—';
+  }
+}
+function confirmNew() {
+  var t=currentView==='history'?lastView:currentView;
+  if(t==='mob') { mobReset(); return; }
+  if(confirm('Nouvelle séance '+TAB_LABELS[t]+' ? Les données en cours de cet onglet seront effacées (l\u2019historique reste intact).')) {
+    resetTab(t);
+    renderAllSeries();
+    saveToStorage();
+    updateProgress();
+    showToast('NOUVELLE SÉANCE PRÊTE',false);
+  }
+}
+
 // ── SERIES ─────────────────────────────────────────────────────────────────
 function renderSeries(key) {
   var c=document.getElementById('sr-'+key); if(!c) return;
@@ -416,9 +597,17 @@ function getIcon(arr) {
 
 function updateProgress() {
   var keys=[],i,fill=document.getElementById('prog-fill');
+  if(currentView==='mob') {
+    var mc=mobCount(), mt=MOB_EXOS.length, mp=Math.round(mc/mt*100);
+    fill.className='progress-fill mob'; fill.style.width=mp+'%';
+    document.getElementById('prog-text').textContent=mc+' / '+mt+' exercices';
+    document.getElementById('prog-pct').textContent=mp+'%';
+    return;
+  }
   if(currentView==='legs')  { for(i=0;i<LEGS_EXOS.length;i++) keys.push('legs-'+i); fill.className='progress-fill legs'; }
   else if(currentView==='arms')  { for(i=0;i<ARMS_SS.length;i++){keys.push('arms-'+i+'-a');keys.push('arms-'+i+'-b');} fill.className='progress-fill arms'; }
   else if(currentView==='chest') { for(i=0;i<CHEST_BLOCKS.length;i++){if(CHEST_BLOCKS[i].type==='solo')keys.push('chest-'+i);else{keys.push('chest-'+i+'-a');keys.push('chest-'+i+'-b');}} fill.className='progress-fill chest'; }
+  if(currentView==='neck') { for(i=0;i<NECK_EXOS.length;i++) keys.push('neck-'+i); fill.className='progress-fill neck'; }
   var total=0,done=0;
   for(var k=0;k<keys.length;k++){var d=DATA[keys[k]];if(!d)continue;total+=d.length;for(var j=0;j<d.length;j++)if(d[j].status!=='')done++;}
   var pct=total>0?Math.round(done/total*100):0;
@@ -437,22 +626,24 @@ function toggleBlock(key) {
 function showView(v) {
   if(v!=='history') lastView=v;
   currentView=v;
-  ['legs','arms','chest','history'].forEach(function(x){document.getElementById(x+'-view').style.display=v===x?'block':'none';});
-  document.getElementById('session-tabs').style.display=v==='history'?'none':'flex';
-  document.getElementById('tab-legs').className ='tab'+(v==='legs'?' active-legs':'');
-  document.getElementById('tab-arms').className ='tab'+(v==='arms'?' active-arms':'');
-  document.getElementById('tab-chest').className='tab'+(v==='chest'?' active-chest':'');
+  ['legs','arms','chest','mob','neck','history'].forEach(function(x){document.getElementById(x+'-view').style.display=v===x?'block':'none';});
+  var tabs=document.getElementById('session-tabs');
+  tabs.style.display=v==='history'?'none':'flex';
+  ['legs','arms','chest','mob','neck'].forEach(function(x){document.getElementById('tab-'+x).className='tab'+(v===x?' active-'+x:'');});
+  if(v!=='history') { var te=document.getElementById('tab-'+v); if(te) tabs.scrollLeft=te.offsetLeft-(tabs.clientWidth-te.offsetWidth)/2; }
   document.getElementById('btn-history').classList.toggle('active',v==='history');
   updateProgress();
   if(v==='history') renderHistory();
+  if(v==='mob') renderMobility();
+  if(v==='neck') renderNeckSchedule();
   window.scrollTo(0,0);
 }
 
 function restoreNotesFields() {
-  var types=['legs','arms','chest'], i;
+  var types=['legs','arms','chest','neck'], i;
   for(var t=0;t<types.length;t++){
     var type=types[t];
-    var len=type==='legs'?LEGS_EXOS.length:type==='arms'?ARMS_SS.length:CHEST_BLOCKS.length;
+    var len=tabLen(type);
     for(i=0;i<len;i++){
       var nt=document.getElementById('nt-'+type+'-'+i);
       if(nt && DATA['note-'+type+'-'+i]) nt.value=DATA['note-'+type+'-'+i];
@@ -463,28 +654,11 @@ function restoreNotesFields() {
 function restoreAllStatuses() {
   var i;
   for(i=0;i<LEGS_EXOS.length;i++) updateBlockStatus('legs-'+i);
+  for(i=0;i<NECK_EXOS.length;i++) updateBlockStatus('neck-'+i);
   for(i=0;i<ARMS_SS.length;i++)   { updateBlockStatus('arms-'+i+'-a'); }
   for(i=0;i<CHEST_BLOCKS.length;i++) {
     if(CHEST_BLOCKS[i].type==='solo') updateBlockStatus('chest-'+i);
     else updateBlockStatus('chest-'+i+'-a');
-  }
-}
-
-// ── NEW SESSION ────────────────────────────────────────────────────────────
-function confirmNew() {
-  if(confirm('Nouvelle session ? Les données en cours seront effacées (l\'historique reste intact).')) {
-    initData();
-    renderAllSeries();
-    var types=['legs','arms','chest'],i;
-    for(var t=0;t<types.length;t++){
-      var type=types[t];
-      var len=type==='legs'?LEGS_EXOS.length:type==='arms'?ARMS_SS.length:CHEST_BLOCKS.length;
-      for(i=0;i<len;i++){var nt=document.getElementById('nt-'+type+'-'+i);if(nt)nt.value='';var st=document.getElementById('st-'+type+'-'+i);if(st)st.textContent='—';}
-    }
-    CURRENT_SESSION={type:null,startTime:new Date().toISOString()};
-    saveToStorage();
-    updateProgress();
-    showToast('NOUVELLE SESSION PRÊTE',false);
   }
 }
 
@@ -495,6 +669,8 @@ function saveSession(type) {
     for(i=0;i<LEGS_EXOS.length;i++){entry.data[i]=JSON.parse(JSON.stringify(DATA['legs-'+i]||[]));entry.notes.push(DATA['note-legs-'+i]||'');}
   } else if(type==='arms'){
     for(i=0;i<ARMS_SS.length;i++){entry.data[i]={a:JSON.parse(JSON.stringify(DATA['arms-'+i+'-a']||[])),b:JSON.parse(JSON.stringify(DATA['arms-'+i+'-b']||[]))};entry.notes.push(DATA['note-arms-'+i]||'');}
+  } else if(type==='neck'){
+    for(i=0;i<NECK_EXOS.length;i++){entry.data[i]=JSON.parse(JSON.stringify(DATA['neck-'+i]||[]));entry.notes.push(DATA['note-neck-'+i]||'');}
   } else {
     for(i=0;i<CHEST_BLOCKS.length;i++){
       if(CHEST_BLOCKS[i].type==='solo') entry.data[i]=JSON.parse(JSON.stringify(DATA['chest-'+i]||[]));
@@ -504,13 +680,14 @@ function saveSession(type) {
   }
   HISTORY.unshift(entry);
   saveToStorage();
+  if(type==='neck') renderNeckSchedule();
   showToast('SÉANCE ENREGISTRÉE 🔥',false);
 }
 
 // ── HISTORY ────────────────────────────────────────────────────────────────
 function setFilter(f) {
   historyFilter=f;
-  ['all','legs','arms','chest'].forEach(function(x){document.getElementById('f-'+x).classList.toggle('active',x===f);});
+  ['all','legs','arms','chest','neck'].forEach(function(x){document.getElementById('f-'+x).classList.toggle('active',x===f);});
   renderHistory();
 }
 
@@ -524,15 +701,15 @@ function renderHistory() {
     var d=new Date(entry.date);
     var ds=d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:'2-digit'}).toUpperCase();
     var ok=0,ko=0,detail='';
-    var typeLabel=entry.type==='legs'?'🦵 JAMBES':entry.type==='arms'?'💪 BRAS / ÉPAULES':'🏋️ PECS / DOS';
-    var exos=entry.type==='legs'?LEGS_EXOS:entry.type==='arms'?ARMS_SS:CHEST_BLOCKS;
+    var typeLabel=entry.type==='legs'?'🦵 JAMBES':entry.type==='arms'?'💪 BRAS / ÉPAULES':entry.type==='neck'?'🦴 COU':'🏋️ PECS / DOS';
+    var exos=entry.type==='legs'?LEGS_EXOS:entry.type==='arms'?ARMS_SS:entry.type==='neck'?NECK_EXOS:CHEST_BLOCKS;
     for(var i=0;i<exos.length;i++){
       var ed=entry.data[i]; if(!ed) continue;
       var note=entry.notes&&entry.notes[i]?'<div style="font-size:10px;color:#555;margin-top:3px;font-style:italic">'+entry.notes[i]+'</div>':'';
-      if(entry.type==='legs'){
+      if(entry.type==='legs'||entry.type==='neck'){
         var chips='';
         (Array.isArray(ed)?ed:[]).forEach(function(sx){var cls=sx.status==='✅'?'ok':sx.status==='❌'?'ko':'';if(sx.status==='✅')ok++;if(sx.status==='❌')ko++;chips+='<span class="chip '+cls+'">'+(sx.kg||'?')+'kg×'+(sx.reps||'?')+' '+(sx.status||'—')+'</span>';});
-        detail+='<div class="h-exo-row"><div class="h-exo-name">'+LEGS_EXOS[i].name+'</div><div class="h-chips">'+chips+'</div>'+note+'</div>';
+        detail+='<div class="h-exo-row"><div class="h-exo-name">'+exos[i].name+'</div><div class="h-chips">'+chips+'</div>'+note+'</div>';
       } else if(entry.type==='arms'){
         var chA='',chB='';
         (ed.a||[]).forEach(function(sx){var cls=sx.status==='✅'?'ok':sx.status==='❌'?'ko':'';if(sx.status==='✅')ok++;if(sx.status==='❌')ko++;chA+='<span class="chip '+cls+'">'+(sx.kg||'?')+'kg×'+(sx.reps||'?')+' '+(sx.status||'—')+'</span>';});
@@ -567,7 +744,7 @@ function delEntry(e,id){
   e.stopPropagation();
   if(confirm('Supprimer cette séance ?')){
     HISTORY=HISTORY.filter(function(s){return s.id!=id;});
-    saveToStorage(); renderHistory();
+    saveToStorage(); renderHistory(); renderNeckSchedule();
     showToast('Séance supprimée',true);
   }
 }
@@ -581,6 +758,7 @@ function showToast(msg,isErr){
 function renderAllSeries(){
   var i;
   for(i=0;i<LEGS_EXOS.length;i++) renderSeries('legs-'+i);
+  for(i=0;i<NECK_EXOS.length;i++) renderSeries('neck-'+i);
   for(i=0;i<ARMS_SS.length;i++){renderSeries('arms-'+i+'-a');renderSeries('arms-'+i+'-b');}
   for(i=0;i<CHEST_BLOCKS.length;i++){
     if(CHEST_BLOCKS[i].type==='solo') renderSeries('chest-'+i);
@@ -593,12 +771,158 @@ if('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
 
+// ── MOBILITÉ (routine quotidienne) ─────────────────────────────────────────
+var MOB_EXOS = [
+  {name:'Écart assis · relevés de jambe',      desc:'Assis jambes écartées, mains au sol. Soulève une jambe, contrôle, repose. Alterne.'},
+  {name:'Pigeon assis · flexion avant',        desc:'Assis, une jambe repliée devant. Penche le buste vers l\u2019avant, dos long, respire.'},
+  {name:'Grand écart facial · flexion avant',  desc:'Jambes écartées au maximum. Descends le buste et la poitrine vers le sol.'},
+  {name:'Squat profond · appuis mains',        desc:'Squat bas, mains au sol. Ouvre les genoux avec les coudes, transfère le poids d\u2019un côté à l\u2019autre.'},
+  {name:'90/90 · bascules de hanches',         desc:'Assis, genoux à 90°. Fais basculer les genoux d\u2019un côté à l\u2019autre.'},
+  {name:'Pigeon · relevés de jambe arrière',   desc:'Position pigeon, mains au sol. Décolle la jambe tendue derrière toi, repose.'},
+  {name:'Essuie-glaces assis',                 desc:'Assis, appui sur les mains, genoux fléchis. Fais tomber les genoux d\u2019un côté puis de l\u2019autre.'},
+  {name:'Squat profond · rotation thoracique', desc:'Squat bas, une main au sol. Ouvre l\u2019autre bras vers le ciel en suivant du regard.'},
+  {name:'Squat latéral (Cossack)',             desc:'Jambes très écartées. Descends sur une jambe, l\u2019autre tendue, puis bascule de l\u2019autre côté.'}
+];
+var MOB = {};
+
+function dateKey(d) {
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function loadMob() {
+  try { var m=localStorage.getItem('tracker_mobility'); if(m) MOB=JSON.parse(m)||{}; } catch(e) { MOB={}; }
+}
+function saveMob() {
+  try { localStorage.setItem('tracker_mobility', JSON.stringify(MOB)); } catch(e) {}
+}
+// Chaque exercice = {reps, status}. Anciennes données (case cochée = true) converties en ✅.
+function mobNorm(v) {
+  if(v && typeof v==='object') return {reps:v.reps||'', status:v.status||''};
+  return {reps:'', status:(v===true?'✅':'')};
+}
+function mobDay(key) {
+  var a=MOB[key], out=[];
+  for(var i=0;i<MOB_EXOS.length;i++) out.push(mobNorm(a&&a[i]));
+  return out;
+}
+function mobToday() {
+  var k=dateKey(new Date());
+  MOB[k]=mobDay(k);
+  return MOB[k];
+}
+// "fait" = un résultat (✅ ou ❌) est enregistré, comme pour les séries des autres onglets
+function mobCountOf(key) {
+  var a=mobDay(key), n=0;
+  for(var i=0;i<a.length;i++) if(a[i].status!=='') n++;
+  return n;
+}
+function mobOkOf(key) {
+  var a=mobDay(key), n=0;
+  for(var i=0;i<a.length;i++) if(a[i].status==='✅') n++;
+  return n;
+}
+function mobCount() { return mobCountOf(dateKey(new Date())); }
+function mobStreak() {
+  var d=new Date();
+  if(mobCountOf(dateKey(d))<MOB_EXOS.length) d.setDate(d.getDate()-1);
+  var n=0;
+  while(mobCountOf(dateKey(d))===MOB_EXOS.length) { n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+
+function buildMobility() {
+  loadMob();
+  var html='<div class="mob-head">'
+    +'<div class="mob-date" id="mob-date"></div>'
+    +'<div class="mob-sub">Routine mobilité · objectif du jour</div>'
+    +'<div class="mob-count-row"><div class="mob-count"><span id="mob-n">0</span><small>/'+MOB_EXOS.length+'</small></div>'
+    +'<div class="mob-badge" id="mob-badge">À FAIRE</div></div>'
+    +'<div class="mob-score" id="mob-score"></div>'
+    +'<div class="mob-week" id="mob-week"></div>'
+    +'<div class="mob-streak" id="mob-streak"></div>'
+    +'</div>'
+    +'<div id="mob-list"></div>'
+    +'<div class="save-wrap"><button class="mob-reset" onclick="mobReset()">RÉINITIALISER AUJOURD\u2019HUI</button></div>';
+  document.getElementById('mob-view').innerHTML=html;
+  renderMobility();
+}
+
+function renderMobility() {
+  var el=document.getElementById('mob-list'); if(!el) return;
+  var today=mobToday(), now=new Date(), i;
+  var n=mobCount(), ok=mobOkOf(dateKey(now)), ko=n-ok;
+
+  document.getElementById('mob-date').textContent=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('mob-n').textContent=n;
+  var b=document.getElementById('mob-badge');
+  if(n===MOB_EXOS.length) { b.textContent='OBJECTIF VALIDÉ ✓'; b.className='mob-badge done'; }
+  else if(n>0)            { b.textContent='EN COURS';          b.className='mob-badge doing'; }
+  else                    { b.textContent='À FAIRE';           b.className='mob-badge'; }
+  document.getElementById('mob-score').textContent=n>0?('✅ '+ok+'   ❌ '+ko):'';
+
+  var html='';
+  for(i=0;i<MOB_EXOS.length;i++) {
+    var m=today[i];
+    html+='<div class="mob-row'+(m.status==='✅'?' ok':m.status==='❌'?' ko':'')+'">'
+      +'<div class="mob-top"><div class="mob-num">'+(i+1)+'</div>'
+      +'<div class="mob-info"><div class="mob-name">'+MOB_EXOS[i].name+'</div>'
+      +'<div class="mob-desc">'+MOB_EXOS[i].desc+'</div></div></div>'
+      +'<div class="mob-ctrl">'
+      +'<div class="input-wrap"><div class="input-lbl">REPS</div>'
+      +'<input class="perf-input" type="number" inputmode="numeric" placeholder="—" value="'+m.reps+'" oninput="mobSetReps('+i+',this.value)"/></div>'
+      +'<div class="status-btns">'
+      +'<button class="status-btn'+(m.status==='✅'?' sel-ok':'')+'" onclick="mobSetStatus('+i+',\'✅\')">✅</button>'
+      +'<button class="status-btn'+(m.status==='❌'?' sel-ko':'')+'" onclick="mobSetStatus('+i+',\'❌\')">❌</button>'
+      +'</div></div></div>';
+  }
+  el.innerHTML=html;
+
+  var letters=['D','L','M','M','J','V','S'], wk='';
+  for(i=6;i>=0;i--) {
+    var d=new Date(); d.setDate(d.getDate()-i);
+    var c=mobCountOf(dateKey(d));
+    var cls=c===MOB_EXOS.length?'full':c>0?'part':'';
+    wk+='<div class="mob-day'+(i===0?' today':'')+'"><div class="mob-day-l">'+letters[d.getDay()]+'</div>'
+      +'<div class="mob-dot '+cls+'">'+(c===MOB_EXOS.length?'✓':(c>0?c:''))+'</div></div>';
+  }
+  document.getElementById('mob-week').innerHTML=wk;
+  var s=mobStreak();
+  document.getElementById('mob-streak').textContent=s>0?('🔥 '+s+' jour'+(s>1?'s':'')+' d\u2019affilée'):'Valide les '+MOB_EXOS.length+' exercices pour lancer ta série';
+  if(currentView==='mob') updateProgress();
+}
+
+function mobSetReps(i, val) {
+  var t=mobToday(); t[i].reps=val; saveMob();
+}
+
+function mobSetStatus(i, st) {
+  var before=mobCount(), t=mobToday();
+  t[i].status = t[i].status===st ? '' : st;
+  saveMob();
+  renderMobility();
+  if(before<MOB_EXOS.length && mobCount()===MOB_EXOS.length) showToast('OBJECTIF DU JOUR VALIDÉ 🔥',false);
+}
+
+function mobReset() {
+  if(confirm('Effacer les répétitions et résultats d\u2019aujourd\u2019hui ?')) {
+    MOB[dateKey(new Date())]=null; saveMob(); mobToday(); renderMobility();
+  }
+}
+
+// Nouveau jour ou retour dans l'app : rafraîchit la date, la mobilité et le planning cou
+document.addEventListener('visibilitychange', function() {
+  if(!document.hidden) {
+    document.getElementById('current-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+    renderMobility();
+    renderNeckSchedule();
+  }
+});
+
 // ── INIT ───────────────────────────────────────────────────────────────────
 function init(){
   document.getElementById('current-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
   loadFromStorage();
   ensureDataKeys();
-  buildLegs(); buildArms(); buildChest();
+  buildLegs(); buildArms(); buildChest(); buildNeck(); buildMobility();
   renderAllSeries();
   restoreNotesFields();
   restoreAllStatuses();
